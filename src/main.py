@@ -84,7 +84,6 @@ if __name__ == "__main__":
     print(f"matching: {keywords}")
     print("***********")
 
-    # Run the script
     pdf_files_with_keywords_and_paragraphs = (
         save_pdf_files_with_keywords_and_paragraphs(input_dir, keywords)
     )
