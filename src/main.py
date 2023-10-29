@@ -4,12 +4,8 @@ import re
 from tqdm import tqdm
 from typing import List
 import pandas as pd
+import argparse
 
-
-# Directory path to search for PDF files
-# TODO make this relative
-# DIRECTORY_PATH = "/Users/yahiaelgamal/pdf_extractor/pdf_docs_small/"
-DIRECTORY_PATH = "/Users/yahiaelgamal/pdf_extractor/pdf_docs/"
 
 # List of keywords to search for in PDF files
 keywords = [
@@ -28,7 +24,8 @@ def from_text_to_paragraphs(text: str) -> List[str]:
 
 
 # Function to extract keywords and paragraphs from a PDF file
-def extract_keywords_and_paragraphs_from_pdf(pdf_file_path, keywords):
+# TODO support removing spaces at the end/start of lines
+def extract_keywords_and_paragraphs_from_pdf(pdf_file_path, keywords, root_dir):
     # Open the PDF file and extract text
     pdf_file = open(pdf_file_path, "rb")
     pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -40,14 +37,24 @@ def extract_keywords_and_paragraphs_from_pdf(pdf_file_path, keywords):
         page_text = page.extract_text()
         paragraphs = from_text_to_paragraphs(page_text)
 
+        file_rel_path = os.path.relpath(pdf_file_path, root_dir)
         # Use regular expression to find paragraphs containing the keyword
-        file_rel_path = os.path.relpath(pdf_file_path, DIRECTORY_PATH)
-        kw_paragraph_matches = [
-            (keyword, file_rel_path, page_num, paragraph.replace("\n", ""))
-            for paragraph in paragraphs
-            for keyword in keywords
-            if re.compile(f".*{keyword}.*", re.IGNORECASE).findall(paragraph)
-        ]
+        kw_paragraph_matches = []
+        for paragraph in paragraphs:
+            matched_kws = [
+                keyword
+                for keyword in keywords
+                if re.compile(f".*{keyword}.*", re.IGNORECASE).findall(paragraph)
+            ]
+            if matched_kws:
+                kw_paragraph_matches.append(
+                    (
+                        ",".join(matched_kws),
+                        file_rel_path,
+                        page_num + 1,
+                        paragraph.replace("\n", ""),
+                    )
+                )
         results.extend(kw_paragraph_matches)
 
     pdf_file.close()
@@ -68,7 +75,7 @@ def save_pdf_files_with_keywords_and_paragraphs(directory_path, keywords):
             if file.lower().endswith(".pdf"):
                 pdf_file_path = os.path.join(root, file)
                 results = extract_keywords_and_paragraphs_from_pdf(
-                    pdf_file_path, keywords
+                    pdf_file_path, keywords, directory_path
                 )
 
                 if results:
@@ -78,15 +85,20 @@ def save_pdf_files_with_keywords_and_paragraphs(directory_path, keywords):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="This script will scrape the PDF")
+    parser.add_argument("input_dir", help="Input dir, will be recursively explored")
+    parser.add_argument("output_file", help="The CSV output file")
+    args = parser.parse_args()
+
     # Run the script
     pdf_files_with_keywords_and_paragraphs = (
-        save_pdf_files_with_keywords_and_paragraphs(DIRECTORY_PATH, keywords)
+        save_pdf_files_with_keywords_and_paragraphs(args.input_dir, keywords)
     )
     df = pd.DataFrame(
         pdf_files_with_keywords_and_paragraphs,
-        columns=["keword", "document", "page", "paragraph"],
+        columns=["kewords", "document", "page", "paragraph"],
     )
-    output_file_path = f"keywords_output.csv"
+    output_file_path = args.output_file
     df.to_csv(output_file_path)
 
     print(f"Results saved to {output_file_path}")

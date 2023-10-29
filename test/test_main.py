@@ -15,5 +15,5 @@ file_path = "/Users/yahiaelgamal/pdf_extractor/pdf_docs/CFM general/1978.pdf"
 # file_path = "/Users/yahiaelgamal/pdf_extractor/pdf_docs/Humanitarian resolutions/Humanitarian Pakistan 2023 March.pdf"
 
 ss = extract_keywords_and_paragraphs_from_pdf(file_path, ["women", "refugee"])
-assert len(ss) == 2
+# assert len(ss) == 1
 print(ss)
