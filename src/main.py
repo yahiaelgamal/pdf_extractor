@@ -7,18 +7,6 @@ import pandas as pd
 import argparse
 
 
-# List of keywords to search for in PDF files
-keywords = [
-    "woman",
-    "women",
-    "displace",
-    "refugee",
-    "migrant",
-    "protection",
-    "inclusion",
-]
-
-
 def from_text_to_paragraphs(text: str) -> List[str]:
     yield from text.split("\n \n")
 
@@ -67,11 +55,8 @@ def save_pdf_files_with_keywords_and_paragraphs(directory_path, keywords):
     pdf_files_with_keywords = []
 
     for root, dirs, files in os.walk(directory_path):
-        print("current root is")
-        print(root)
-        # for file in tqdm(files, desc="Files", disable=True):
-        for file in files:
-            print(f"** file is {file}")
+        print(f"in {root}:")
+        for file in tqdm(files, desc="Files"):
             if file.lower().endswith(".pdf"):
                 pdf_file_path = os.path.join(root, file)
                 results = extract_keywords_and_paragraphs_from_pdf(
@@ -88,17 +73,25 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="This script will scrape the PDF")
     parser.add_argument("input_dir", help="Input dir, will be recursively explored")
     parser.add_argument("output_file", help="The CSV output file")
+    parser.add_argument("keywords", help="List of keywords to match", nargs="+")
     args = parser.parse_args()
+    input_dir = args.input_dir
+    output_file_path = args.output_file
+    keywords = args.keywords
+    print("***********")
+    print(f"Reading file in: {input_dir}")
+    print(f"output file is {output_file_path}")
+    print(f"matching: {keywords}")
+    print("***********")
 
     # Run the script
     pdf_files_with_keywords_and_paragraphs = (
-        save_pdf_files_with_keywords_and_paragraphs(args.input_dir, keywords)
+        save_pdf_files_with_keywords_and_paragraphs(input_dir, keywords)
     )
     df = pd.DataFrame(
         pdf_files_with_keywords_and_paragraphs,
         columns=["kewords", "document", "page", "paragraph"],
     )
-    output_file_path = args.output_file
     df.to_csv(output_file_path)
 
     print(f"Results saved to {output_file_path}")
