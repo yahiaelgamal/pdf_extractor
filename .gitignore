@@ -1,0 +1,4 @@
+pdf_docs/**
+pdf_docs_small/**
+
+**/__pycache__/**
