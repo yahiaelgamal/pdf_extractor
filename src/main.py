@@ -13,7 +13,9 @@ def from_text_to_paragraphs(text: str) -> List[str]:
 
 # Function to extract keywords and paragraphs from a PDF file
 # TODO support removing spaces at the end/start of lines
-def extract_keywords_and_paragraphs_from_pdf(pdf_file_path, keywords, root_dir):
+def extract_keywords_and_paragraphs_from_pdf(
+    pdf_file_path: str, keywords: List[str], root_dir: str
+):
     # Open the PDF file and extract text
     pdf_file = open(pdf_file_path, "rb")
     pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -51,7 +53,9 @@ def extract_keywords_and_paragraphs_from_pdf(pdf_file_path, keywords, root_dir):
 
 
 # Function to search for PDF files and save file paths with extracted keywords and paragraphs
-def save_pdf_files_with_keywords_and_paragraphs(directory_path, keywords):
+def save_pdf_files_with_keywords_and_paragraphs(
+    directory_path: str, keywords: List[str]
+):
     pdf_files_with_keywords = []
 
     for root, dirs, files in os.walk(directory_path):

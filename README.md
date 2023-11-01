@@ -1,5 +1,5 @@
-# How to run 
-## Setup 
+# How to run
+## Setup
 ```bash
 pyenv virtualenv create pdf_extractor # not sure if this works
 pyenv activate pdf_extractor
@@ -22,9 +22,15 @@ options:
 ```
 
 
-For exmaple you can: 
-`python src/main.py PDF_DIR CSV_OUTPUT word1 word2 word3 word4`
+The command should loo like:
+`python src/main.py PDF_DIR CSV_OUTPUT word1 word2 word3 word4 ...`
+
+For example:
+
+`
+	python src/main.py pdf_docs output_file.csv women women displace refugee migrant protection inclusion
+`
 
 
-# TODO: 
+# TODO:
 1. Experiment with containerized with docker
